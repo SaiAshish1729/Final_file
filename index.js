@@ -4,7 +4,7 @@ import mongoose from "mongoose"
 
 const app = express()
 app.use(express.json())
-app.use(express.urlencoded())
+app.use(express.urlencoded({extended: true})); 
 app.use(cors())
 
 // mongoose.connect("mongodb+srv://bleeny:AEKMO2MX6SuQRnOu@bleeny.pgjkj.mongodb.net/?retryWrites=true&w=majority", {

@@ -93,7 +93,7 @@ app.post("/formdata", (req, res) => {
 
 })
 
-app.listen(9002, () => {
+app.listen(9000, () => {
     console.log("BE started at port 9002")
 })
 

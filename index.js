@@ -43,7 +43,7 @@ const User = new mongoose.model("User", userSchema)
 
 
 app.get("/getform", async (req, res) => {
-    User.find({}, (err, result) => {
+    User.findOne({}, (err, result) => {
         if (err) {
             res.send(err)
         }

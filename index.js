@@ -25,13 +25,14 @@ const userSchema = new mongoose.Schema({
     results: [{
 
         question: String,
+        correct_option: String,
 
         answers: {
             option_a: String,
             option_b: String,
             option_c: String,
             option_d: String,
-            correct_option: String
+          
         }
 
         
@@ -57,13 +58,13 @@ app.post("/formdata", (req, res) => {
     const { question, option_a, option_b, option_c, option_d, correct_option } = req.body
     const object = {
         question,
-        
+        correct_option,
         answers:{
             option_a,
             option_b,
             option_c,
             option_d,
-            correct_option
+            
         }
        
     }

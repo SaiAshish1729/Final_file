@@ -1,98 +1,151 @@
-import express from "express"
-import cors from "cors"
-import mongoose from "mongoose"
+const cors = require('cors')
+const bodyParser = require('body-parser')
+const express = require("express");
+const mongoose = require("mongoose");
+const app = express();
 
-const app = express()
-app.use(express.json())
-app.use(express.urlencoded({extended: true})); 
+// mongodb connection
+
+const conn = mongoose.connect("mongodb+srv://metavy:cJ32ryK4eOZghIWa@cluster0.srf312a.mongodb.net")
+.then(()=>{
+    
+    console.log("successfully connect to Atlas mongodb...");
+})
+.catch((err)=>{
+    console.log("err error");
+});
+
+//connet to server
+
 app.use(cors())
 
-// mongoose.connect("mongodb+srv://bleeny:AEKMO2MX6SuQRnOu@bleeny.pgjkj.mongodb.net/?retryWrites=true&w=majority", {
-mongoose.connect("mongodb+srv://Ashish:NjxL8qaI2TLb3K6s@cluster0.uksadmq.mongodb.net/Data", {
-    // mongoose.connect("mongodb://127.0.0.1:27017/myQuiz", {
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}, () => {
-    console.log("DB connected") 
+//server part
+app.listen(9002, () => {
+    console.log("Be started at port 9002")
 })
 
-const userSchema = new mongoose.Schema({
+app.get('',(req,resp)=>{
+    
+    resp.send("hi");
+});
 
-    response_code: {
-        type: Number
+//Schema 
+const non_blocklistSchema = new mongoose.Schema({
+    
+              
+    question:{
+        type:String,
+        required:true
     },
-    results: [{
+    
+    a:{
+        type:String,
+        required:true
+    },          
+    b:{
+            type:String,
+            required:true 
+    },
+    c: {
+                type:String,
+            required:true 
+    },
+    d:{
+                type:String,
+            required:true 
+    },
+    correct:{
+        type:String,
+        required:true
+    }
 
-        question: String,
 
-        answers: {
-            option_a: String,
-            option_b: String,
-            option_c: String,
-            option_d: String,
-        },
-        correct_option: String,
-
-        
-    }]
 
 })
 
-const User = new mongoose.model("User", userSchema)
+//model
+const non_blocklist = new mongoose.model("non_blocklist",non_blocklistSchema);
 
 
-app.get("/getform", async (req, res) => {
-    User.findOne({}, (err, result) => {
-        if (err) {
-            res.send(err)
-        }
-        res.send(result)
-    })
-})
 
-
+// http://localhost:9002/formdata
 app.post("/formdata", (req, res) => {
 
     const { question, option_a, option_b, option_c, option_d, correct_option } = req.body
-    const object = {
-        question,
-        answers:{
-            option_a,
-            option_b,
-            option_c,
-            option_d,
-        },
-        correct_option,
-       
-    }
-    const user = new User({
 
-        response_code: 0,
-        results: [object]
+    const doc = non_blocklist.find()
+    console.log(doc)
+        if (question==doc.question) {
 
-    })
-    user.save(err => {
-        if (err) {
-            res.send(err)
+            res.send({message:"Question is already present"})
+
         } else {
-            res.send({ message: "Successfully submited, Please login now." })
+
+            const Non_blocklist = new non_blocklist(
+
+                {
+                    question: question,
+                    a:option_a,
+                    b: option_b,
+                    c:option_c ,
+                    d:option_d,
+                    correct: correct_option
+                }
+
+            )
+            Non_blocklist.save(err => {
+                if (err) {
+                    res.send(err)
+                } else {
+                    res.send({ message: "Successfully submited." })
+                }
+            })
+
+        }
+
+
+
+})
+
+
+
+// http://localhost:9002/all/get/api/v1
+//provide index number after url like this ?num=3
+
+app.get('/all/get/api/v1', (req, resp,next) => {
+
+
+
+    non_blocklist.find({},{correct:0,_id:0,__v:0})
+    .then((result) => {
+
+        const array =result
+        //console.log(array)
+        const numObjects = array.length
+        //const finalNum = numObjects - 1
+        //console.log(numObjects)
+        //console.log(typeof numObjects)
+
+        let count = 0;
+
+        while (count < numObjects) {
+            //console.log(count);
+        
+        let secondObject = array.find((obj, index) => index == count)
+        if(count==req.query.num){
+            resp.send(secondObject)
+        }else { 
+           // resp.send("please provide correct number")
+            next();
+        }
+        count++;
         }
     })
-
-    //update
-    const updateFunc = async () => {
-        await User.updateOne(
-            { "response_code": 0 },
-            { "$push": { "results": object } }
-        );
-
-    }
-    updateFunc();
+    .catch((err) => {
+        console.log(err);
+    })
 
 })
-
-app.listen(9000, () => {
-    console.log("BE started at port 9002")
-})
-

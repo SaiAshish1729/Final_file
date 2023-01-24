@@ -5,7 +5,9 @@ const mongoose = require("mongoose");
 const app = express();
 
 // mongodb connection
-
+// mongodb://localhost:27017/newsAndGame
+// mongodb://0.0.0.0:27017/newsAndGame
+// mongodb+srv://metavy:cJ32ryK4eOZghIWa@cluster0.srf312a.mongodb.net
 const conn = mongoose.connect("mongodb+srv://metavy:cJ32ryK4eOZghIWa@cluster0.srf312a.mongodb.net")
 .then(()=>{
     
@@ -60,9 +62,9 @@ const non_blocklistSchema = new mongoose.Schema({
     correct:{
         type:String,
         required:true
-    }
+    }  
 
-
+ 
 
 })
 
@@ -75,26 +77,26 @@ const non_blocklist = new mongoose.model("non_blocklist",non_blocklistSchema);
 app.post("/formdata", (req, res) => {
 
     const { question, option_a, option_b, option_c, option_d, correct_option } = req.body
-
-    const doc = non_blocklist.find()
-    console.log(doc)
-        if (question==doc.question) {
-
-            res.send({message:"Question is already present"})
-
-        } else {
-
+    
+    // const doc = non_blocklist.find()
+    // console.log(doc)
+    //     if (question==doc.question) {
+            
+    //         res.send({message:"Question is already present"})
+           
+    //     } else {
+            
             const Non_blocklist = new non_blocklist(
-
+                
                 {
                     question: question,
                     a:option_a,
                     b: option_b,
-                    c:option_c ,
-                    d:option_d,
+                    c:option_c ,               
+                    d:option_d, 
                     correct: correct_option
                 }
-
+                
             )
             Non_blocklist.save(err => {
                 if (err) {
@@ -103,15 +105,17 @@ app.post("/formdata", (req, res) => {
                     res.send({ message: "Successfully submited." })
                 }
             })
-
-        }
-
+    
+        //}
+     
 
 
 })
 
 
 
+// http://localhost:9002/all/get/api/v1?num=3
+//provide index number after url like this ?num=3
 // http://localhost:9002/all/get/api/v1
 //provide index number after url like this ?num=3
 
@@ -119,9 +123,9 @@ app.get('/all/get/api/v1', (req, resp,next) => {
 
 
 
-    non_blocklist.find({},{correct:0,_id:0,__v:0})
+    non_blocklist.find({},{_id:0})
     .then((result) => {
-
+        
         const array =result
         //console.log(array)
         const numObjects = array.length
@@ -149,3 +153,20 @@ app.get('/all/get/api/v1', (req, resp,next) => {
     })
 
 })
+
+
+
+// // http://localhost:9002/all/get/api/v4
+
+// app.get('/all/get/api/v4', (req, resp) => {
+
+// //,{correct:0,_id:0,__v:0}
+//     non_blocklist.find({})
+//            .then((result) => {
+//                resp.send(result);
+               
+//            })
+//            .catch((err) => {
+//                console.log(err)
+//            })
+//        })
